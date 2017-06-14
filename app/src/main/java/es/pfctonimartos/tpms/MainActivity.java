@@ -24,7 +24,11 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -174,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi,
                              byte[] scanRecord) {
+            byte[] advertisement = scanRecord;
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -368,6 +373,70 @@ public class MainActivity extends AppCompatActivity {
         printInView(pressure, temperature, sensorId);
 
         return tyre;
+    }
+
+    private String preparePropertyName (final String propertyName, final int sensorId){
+        String sensorPosition = "";
+        String sensorName;
+        String property = propertyName.toUpperCase();
+
+        switch (sensorId){
+            case 1:
+                sensorPosition = "FL_WHEEL_";
+                break;
+            case 2:
+                sensorPosition = "FR_WHEEL_";
+                break;
+            case 3:
+                sensorPosition = "RL_WHEEL_";
+                break;
+            case 4:
+                sensorPosition = "RR_WHEEL_";
+                break;
+        }
+
+        sensorName = sensorPosition.concat(propertyName);
+
+        return sensorName;
+    }
+    private String preparePropertyUnit (final String propertyName){
+
+        String propertyUnit = "";
+
+        switch (propertyName){
+            case "pressure":
+                propertyUnit = "bar";
+                break;
+            case "temperature":
+                propertyUnit = "ºC";
+                break;
+        }
+
+        return propertyUnit;
+    }
+
+    private JSONObject createJSONObject (final String propertyName, final String propertyValue, final int sensorId) throws JSONException {
+
+        Date timestamp = new Date();
+
+        JSONObject dataPoint = new JSONObject();
+        JSONObject dataPoints = new JSONObject();
+        JSONObject singleSensor = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
+
+        dataPoint.put("time", timestamp);
+        dataPoint.put("value", propertyValue);
+
+        dataPoints.put("data_points", dataPoint);
+
+        singleSensor.put("data_points", dataPoint);
+        singleSensor.put("sensor_name", propertyName);
+        singleSensor.put("units", propertyValue);
+
+        jsonObject.put("device_id", sensorId);
+        jsonObject.put("sensors", singleSensor);
+
+        return jsonObject;
     }
 
     private void printInView(final String pressure, final String temperature, final int sensorId) {
