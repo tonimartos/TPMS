@@ -321,6 +321,14 @@ public class MainActivity extends AppCompatActivity {
 
     public static void getSensorsIds(byte[] data) {
         byte[] items = new byte[4];
+        int j = 1;
+        for(int i = 3; i < data.length; i=+4){
+            if(data[i]!=0){
+                System.arraycopy(data, i, items, 0, items.length);
+                Log.d("BUCLE_ID_"+j, UnitsManager.bytesToHex(items));
+            }
+            j++;
+        }
         System.arraycopy(data, 3, items, 0, items.length);
         Log.d("ID1", UnitsManager.bytesToHex(items));
         System.arraycopy(data, 7, items, 0, items.length);
@@ -375,6 +383,7 @@ public class MainActivity extends AppCompatActivity {
         return tyre;
     }
 
+    //TODO: prepare propertyNames in calling method
     private String preparePropertyName (final String propertyName, final int sensorId){
         String sensorPosition = "";
         String sensorName;
@@ -399,6 +408,7 @@ public class MainActivity extends AppCompatActivity {
 
         return sensorName;
     }
+
     private String preparePropertyUnit (final String propertyName){
 
         String propertyUnit = "";
@@ -415,6 +425,7 @@ public class MainActivity extends AppCompatActivity {
         return propertyUnit;
     }
 
+    //TODO: device_id needs a reliable value (I think the wheel sensor one)
     private JSONObject createJSONObject (final String propertyName, final String propertyValue, final int sensorId) throws JSONException {
 
         Date timestamp = new Date();
@@ -437,6 +448,11 @@ public class MainActivity extends AppCompatActivity {
         jsonObject.put("sensors", singleSensor);
 
         return jsonObject;
+    }
+
+    private void createJSONFile(final JSONObject jsonDataObject){
+        //File file = new File(Environment.getExternalStorageDirectory() + "Android/data/com.sensorspark.carmetry/files/test.txt");
+
     }
 
     private void printInView(final String pressure, final String temperature, final int sensorId) {
